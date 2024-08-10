@@ -1,176 +1,219 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset=utf-8>
-    <title>ESP FS Web Server</title>
-    <meta content="width=device-width, initial-scale=1" name=viewport>
-    <link href=style.css rel=stylesheet type=text/css>
-</head>
-<body>
-    <main id=main-box>
-        <header class="ctn">
-            <div class=title>
-                <div id=img-logo title='Click to upload your logo file'></div>
-                <div class=heading>
-                  <h1 id=name-logo>ESP FS Web Server</h1>
-                  <span id=esp-ip></span><br>
-                  <span id=esp-mode></span> - v<span id=firmware></span>
-                </div>
-            </div>
-            <div class=topnav id=top-nav>
-                <span id="nav-link"><a id=set-wifi class="a-link active" data-box="wifi-box">WiFi Setup</a></span>
-                <span id="upd-link"><a id=set-update class="a-link" data-box="update-box">Update & FS</a></span>
-                <a class="a-link icon" id=hum-btn>
-                    <div class=svg style=margin:-2px >
-                        <svg id=svg-menu height="16pt" fill=currentColor viewBox="0 0 20 18"></svg>
-                    </div>
-                </a>
-            </div>
-        </header>
-        <div id=wifi-box class="ctn opt-box">
-            <h2 class=heading-2>Connect to WiFi</h2>
-            
-            <div id=wifi-table class=hide>
-                <hr>
-                <table class=table>
-                    <tbody id=wifi-list></tbody>
-                </table>
-                <br>
-            </div>
-            <div id=wifi>
-                <div class=tf-wrapper>
-                    <label for=ssid class=input-label>SSID</label>
-                    <input type=text placeholder="Enter your WiFI SSID name" id="ssid">
-                </div>
-                <div class=tf-wrapper>
-                    <label for=password class=input-label>Password</label>
-                    <div class=pswd>
-                      <input type=password placeholder="Enter your WiFi password"
-                        id=password autocomplete=current-password data-ms-member="password">
-                      <span class=show-hide-wrap id=show-hide-password>
-                        <a class="show-hide hide" id=show-pass>
-                            <div class=svg><svg class=svg-e id=svg-eye viewBox="0 0 24 24"></svg></div>
-                        </a>
-                        <a class="show-hide" id=hide-pass>
-                            <div class=svg><svg class=svg-e id=svg-no-eye viewBox="0 0 24 24"></svg></div>
-                        </a>
-                      </span>  
-                    </div>
-                </div>
-                <div class="tf-wrapper">
-                  <label class="input-label toggle">
-                    <input id=no-dhcp type=checkbox class="t-check">
-                    <div class=toggle-switch></div>
-                    <span class=toggle-label>Manual configuration (no DHCP)</span>
-                  </label>
-                </div>
-                <div class=hide id=conf-wifi> 
-                  <div class="tf-wrapper">
-                      <label for=ip class=input-label>IP Address</label>
-                      <input type=text placeholder="IP Address" id=ip value=192.168.0.10>
-                  </div>
-                  <div class="tf-wrapper">
-                      <label for=gateway class=input-label>Gateway</label>
-                      <input type=text placeholder="Gateway address" id=gateway value=192.168.0.1>
-                  </div>
-                  <div class="tf-wrapper">
-                      <label for=subnet class=input-label>Subnet</label>
-                      <input type=text placeholder="Subnet mask" id=subnet value="255.255.255.0">
-                  </div>
-                </div>
-                    
-                <div class=tf-wrapper>
-                  <label class="lbl-wifi toggle">
-                    <input id=persistent type=checkbox class="t-check" checked>
-                    <div class=toggle-switch></div>
-                    <span class=toggle-label>Store WiFi credentials</span>
-                  </label>
-                </div>
-            </div>
-            <hr>
-            <div class="btn-bar ">
-                <a id=scan-wifi class="btn">
-                    <div class=svg><svg id=svg-scan fill=currentColor viewBox="0 0 24 24"></svg></div>
-                    <span>Scan WiFi networks</span>
-                </a>
-                <a id=connect-wifi class="btn">
-                    <div class=svg><svg id=svg-connect fill=currentColor viewBox="0 0 24 24"></svg></div>
-                    <span>Connect to <span id=ssid-name>SSID</span></span>
-                </a>
-                <a id=save-wifi class="btn hide">
-                    <div class=svg><svg id=svg-save2 fill=currentColor viewBox="0 0 24 24"></svg></div>
-                    <span>Save configuration</span>
-                </a>
-            </div>
-        </div>
-
-        <div id="update-box" class="ctn opt-box hide">
-          <h2 class="heading-2">Update ESP Firmware</h2>
-          <div class=tf-wrapper>
-            <form id=update-form class=form action="/update" method="post" enctype="multipart/form-data">
-              <div class=firmware>
-                <label for="file-input" id="fw-label" class="fw-upload">Select firmware binary file</label>
-                <input id="file-input" type="file"/>
-                <a id=update-btn class="btn submit">
-                  <div class=svg>
-                    <svg fill=currentColor viewBox="0 0 24 24"><path d="M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z" /></svg>
-                  </div>
-                  <span>Submit!</span>
-                </a><br>
-              </div>
-            	<div class="progress-wrap hide" id="progress-wrap" data-progress-style="fill-back">
-            	  <div id="update-log"></div>
-            	  <div class="progress" id='progress-anim'></div>
-            	</div>
-            </form>
-          </div>
-          
-          <h2 class="heading-2">Load file to ESP FileSystem</h2>
-          <div class=tf-wrapper>
-            <form class=form action="/edit" method="post" enctype="multipart/form-data">
-              <ul id="listing"></ul>
-              <label for="picker" id="pick-label" class="fw-upload">Select the folder containing your files</label>
-              <input type="file" id="picker" name="fileList" webkitdirectory multiple>
-              <p>N.B.: if folder name is <b>"/data"</b>, the files will be uploaded at root "/" level </p>
-            </form>
-          </div>
-        </div>
-        <hr id=btn-hr class=hide>
-        <div id=btn-box class="btn-bar hide">
-            <a id=restart class="btn">
-                <div class=svg><svg id=svg-restart fill=currentColor viewBox="0 0 24 24"></svg></div>
-                <span>Restart ESP</span>
-            </a>
-            <a id=save-params class="btn">
-                <div class=svg><svg id=svg-save fill=currentColor viewBox="0 0 24 24"></svg></div>
-                <span>Save configuration</span>
-            </a>
-        </div>
-    </main>
-    
-    <div class="loader hide" id=loader>
-      <div class="loading">Loading...</div>
-      <div class="spinH spin-1H"></div>
-      <div class="spinH spin-2H"></div>
-      <div class="spinH spin-3H"></div>
-      <div class="spinH spin-4H"></div>
-    </div>
-    
-    <details id=modal-message>
-        <summary></summary>
-        <div class=d-modal>
-            <div class=d-modal-title><h2 id=message-title>t</h2></div>
-            <div class=d-modal-content><p id=message-body></p></div>
-            <div class=btn-bar>
-                <a id=ok-modal class="btn hide" onclick=closeModal(true)><span>OK</span></a>
-                <a id=close-modal class="btn" onclick=closeModal(false)><span>Close</span></a>
-            </div>
-        </div>
-    </details>
-    <footer class=foot>
-        <hr>
-        <a id=about target=_blank rel=noopener></a>
-    </footer>
-    <script src=app.js></script>
-</body>
-</html>
+	<head>
+		<meta charset=utf-8>
+			<title>Watchman Server</title>
+			<meta content="width=device-width, initial-scale=1" name=viewport>
+				<link href=style.css rel=stylesheet type=text/css>
+				</head>
+				<body>
+					<main id=main-box>
+						<header class="ctn header">
+							<div class=title>
+								<div class=logo>
+									<img class="logo" src="data:image/png;base64, 
+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oPO7jH3D9ErkUcm2AkWMeZWiQXT/4H/zurZWfGPeSwnGg/cVxPoaB0C5QrzrO97Hj1E+A4DNwpTf95Row/Ul6talFj4CebeDiuqkpe8DlDtD/ZMim7EpBWkI+D7yf0Tdlgd5boGvV61vjHKcPQJp6lbwBDg6BkQJlr/m8u7O1b//WNPr3A2vScqRJmUNHAAANHGlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSLvu78iIGlkPSJXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQiPz4KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyIgeDp4bXB0az0iWE1QIENvcmUgNC40LjAtRXhpdjIiPgogPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0iIgogICAgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iCiAgICB4bWxuczpzdEV2dD0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL3NUeXBlL1Jlc291cmNlRXZlbnQjIgogICAgeG1sbnM6ZGM9Imh0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvIgogICAgeG1sbnM6R0lNUD0iaHR0cDovL3d3dy5naW1wLm9yZy94bXAvIgogICAgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iCiAgICB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iCiAgIHhtcE1NOkRvY3VtZW50SUQ9ImdpbXA6ZG9jaWQ6Z2ltcDpmZDc2YWNhZi00ODRjLTRmOGYtODliMy04OGVlZGFlYjkyYTkiCiAgIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6OTc2ZjUxMmMtYmE3My00MjFmLWI0OTUtZjVkMWE1MjE3NzRiIgogICB4bXBNTTpPcmlnaW5hbERvY3VtZW50SUQ9InhtcC5kaWQ6MzRkN2RjODItZTcxYS00MjIyLTkzMzQtMTgwMDYzZGVmM2VlIgogICBkYzpGb3JtYXQ9ImltYWdlL3BuZyIKICAgR0lNUDpBUEk9IjIuMCIKICAgR0lNUDpQbGF0Zm9ybT0iTWFjIE9TIgogICBHSU1QOlRpbWVTdGFtcD0iMTcxOTAwNTgxMTU5ODQ3NyIKICAgR0lNUDpWZXJzaW9uPSIyLjEwLjMwIgogICB0aWZmOk9yaWVudGF0aW9uPSIxIgogICB4bXA6Q3JlYXRvclRvb2w9IkdJTVAgMi4xMCI+CiAgIDx4bXBNTTpIaXN0b3J5PgogICAgPHJkZjpTZXE+CiAgICAgPHJkZjpsaQogICAgICBzdEV2dDphY3Rpb249InNhdmVkIgogICAgICBzdEV2dDpjaGFuZ2VkPSIvIgogICAgICBzdEV2dDppbnN0YW5jZUlEPSJ4bXAuaWlkOjMxYjY1ODBmLWMyMGYtNGYwMy1iNDhmLThjZWM5NTViNTk3YyIKICAgICAgc3RFdnQ6c29mdHdhcmVBZ2VudD0iR2ltcCAyLjEwIChNYWMgT1MpIgogICAgICBzdEV2dDp3aGVuPSIyMDI0LTA2LTIxVDE3OjM2OjUxLTA0OjAwIi8+CiAgICA8L3JkZjpTZXE+CiAgIDwveG1wTU06SGlzdG9yeT4KICA8L3JkZjpEZXNjcmlwdGlvbj4KIDwvcmRmOlJERj4KPC94OnhtcG1ldGE+CiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICAgICAKPD94cGFja2V0IGVuZD0idyI/PpYbMrMAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAHdElNRQfoBhUVJDOKkYBpAAAgAElEQVR42u1dd5hV1bX/7b3POffOLXOn9xlmhs5Qho5UESRqVKISWxJsMbZnN3m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
+" style="width:68px;height:62px">
+									</div>
+									<div class=heading>
+										<h1>Watchman</h1>
+MAC ID : 
+									
+										<span id=macID></span>
+										<br>
+											<span id=esp-mode></span>
+											<br> Ver. 
+											
+												<span id=firmware></span>
+											</div>
+										</div>
+										<div class=topnav id=top-nav>
+											<span id=nav-link>
+												<a id=set-wifi class="a-link active" data-box=wifi-box>WiFi Setup</a>
+											</span>
+											<span id=upd-link>
+												<a id=set-update class=a-link data-box=update-box>Update & FS</a>
+											</span>
+											<a id=hum-btn class="a-link icon">
+												<div class=svg style=margin:-2px>
+													<svg viewBox="0 0 20 18" id=svg-menu fill=currentColor height=16pt></svg>
+												</div>
+											</a>
+										</div>
+									</header>
+									<div class="ctn opt-box" id=wifi-box>
+										<h2 class=heading-2>Connect to WiFi</h2>
+										<div class=hide id=wifi-table>
+											<hr>
+												<table class=table>
+													<tbody id=wifi-list></tbody>
+												</table>
+												<br>
+												</div>
+												<div id=wifi>
+													<div class=tf-wrapper>
+														<label class=input-label for=ssid>SSID</label>
+														<input id=ssid type=text placeholder="Enter your WiFI SSID name">
+														</div>
+														<div class=tf-wrapper>
+															<label class=input-label for=password>Password</label>
+															<div class=pswd>
+																<input id=password type=password autocomplete=current-password data-ms-member=password placeholder="Enter your WiFi password">
+																	<span id=show-hide-password class=show-hide-wrap>
+																		<a id=show-pass class="show-hide hide">
+																			<div class=svg>
+																				<svg viewBox="0 0 24 24" id=svg-eye class=svg-e></svg>
+																			</div>
+																		</a>
+																		<a id=hide-pass class=show-hide>
+																			<div class=svg>
+																				<svg viewBox="0 0 24 24" id=svg-no-eye class=svg-e></svg>
+																			</div>
+																		</a>
+																	</span>
+																</div>
+															</div>
+															<div class=hide>
+																<div class="tf-wrapper">
+																	<label class="input-label toggle">
+																		<input id=no-dhcp type=checkbox class="t-check">
+																			<div class=toggle-switch></div>
+																			<span class=toggle-label>Manual configuration (no DHCP)</span>
+																		</label>
+																	</div>
+																</div>
+																<div class=hide id=conf-wifi>
+																	<div class="tf-wrapper">
+																		<label for=ip class=input-label>IP Address</label>
+																		<input type=text placeholder="IP Address" id=ip value=192.168.0.10>
+																		</div>
+																		<div class="tf-wrapper">
+																			<label for=gateway class=input-label>Gateway</label>
+																			<input type=text placeholder="Gateway address" id=gateway value=192.168.0.1>
+																			</div>
+																			<div class="tf-wrapper">
+																				<label for=subnet class=input-label>Subnet</label>
+																				<input type=text placeholder="Subnet mask" id=subnet value="255.255.255.0">
+																				</div>
+																			</div>
+																			<div class=hide>
+																				<div class=tf-wrapper>
+																					<label class="lbl-wifi toggle">
+																						<input id=persistent type=checkbox checked class=t-check>
+																							<div class=toggle-switch></div>
+																							<span class=toggle-label>Store WiFi credentials</span>
+																						</label>
+																					</div>
+																				</div>
+																			</div>
+																			<hr>
+																				<div class=btn-bar>
+																					<a id=scan-wifi class=btn>
+																						<div class=svg>
+																							<svg viewBox="0 0 24 24" id=svg-scan fill=currentColor></svg>
+																						</div>
+																						<span>Scan WiFi networks</span>
+																					</a>
+																					<a id=connect-wifi class=btn>
+																						<div class=svg>
+																							<svg viewBox="0 0 24 24" id=svg-connect fill=currentColor></svg>
+																						</div>
+																						<span>Connect to 
+																						
+																							<span id=ssid-name>SSID</span>
+																						</span>
+																					</a>
+																					<a id=save-wifi class="btn hide">
+																						<div class=svg>
+																							<svg id=svg-save2 fill=currentColor viewBox="0 0 24 24"></svg>
+																						</div>
+																						<span>Save configuration</span>
+																					</a>
+																				</div>
+																			</div>
+																			<div class="hide ctn opt-box" id=update-box>
+																				<h2 class=heading-2>Update Watchman Firmware</h2>
+																				<div class=tf-wrapper>
+																					<form action=/update class=form enctype=multipart/form-data method=post id=update-form>
+																						<div class=firmware>
+																							<label class=fw-upload for=file-input id=fw-label>Select firmware binary file</label>
+																							<input id=file-input type=file>
+																								<a id=update-btn class="btn submit">
+																									<div class=svg>
+																										<svg viewBox="0 0 24 24" fill=currentColor>
+																											<path d=M9,16V10H5L12,3L19,10H15V16H9M5,20V18H19V20H5Z />
+																										</svg>
+																									</div>
+																									<span>Submit!</span>
+																								</a>
+																								<br>
+																								</div>
+																								<div class="hide progress-wrap" id=progress-wrap data-progress-style=fill-back>
+																									<div id=update-log></div>
+																									<div class=progress id=progress-anim></div>
+																								</div>
+																							</form>
+																						</div>
+																						<h2 class=heading-2>Load file to Watchman FileSystem</h2>
+																						<div class=tf-wrapper>
+																							<form action=/edit class=form enctype=multipart/form-data method=post>
+																								<ul id=listing></ul>
+																								<label class=fw-upload for=picker id=pick-label>Select the folder containing your files</label>
+																								<input id=picker type=file multiple name=fileList webkitdirectory>
+																									<p>N.B.: if folder name is 
+																									
+																										<b>"/data"</b>, the files will be uploaded at root "/" level
+																								
+																									</p>
+																								</form>
+																							</div>
+																						</div>
+																						<hr id=btn-hr class=hide>
+																							<div class="hide btn-bar" id=btn-box>
+																								<a id=restart class=btn>
+																									<div class=svg>
+																										<svg viewBox="0 0 24 24" id=svg-restart fill=currentColor></svg>
+																									</div>
+																									<span>Restart Watchman</span>
+																								</a>
+																								<a id=save-params class=btn>
+																									<div class=svg>
+																										<svg viewBox="0 0 24 24" id=svg-save fill=currentColor></svg>
+																									</div>
+																									<span>Save configuration</span>
+																								</a>
+																							</div>
+																						</main>
+																						<div class="hide loader" id=loader>
+																							<div class=loading>Loading...</div>
+																							<div class="spinH spin-1H"></div>
+																							<div class="spinH spin-2H"></div>
+																							<div class="spinH spin-3H"></div>
+																							<div class="spinH spin-4H"></div>
+																						</div>
+																						<details id=modal-message>
+																							<summary></summary>
+																							<div class=d-modal>
+																								<div class=d-modal-title>
+																									<h2 id=message-title>t</h2>
+																								</div>
+																								<div class=d-modal-content>
+																									<p id=message-body>
+																									</div>
+																									<div class=btn-bar>
+																										<a id=ok-modal class="btn hide" onclick=closeModal(true)>
+																											<span>OK</span>
+																										</a>
+																										<a id=close-modal class=btn onclick=closeModal(false)>
+																											<span>Close</span>
+																										</a>
+																									</div>
+																								</div>
+																							</details>
+																							<footer class=foot>
+																								<hr>
+																									<a id=about target=_blank rel=noopener></a>
+																								</footer>
+																								<script src=app.js></script>
+																							</body>
+																						</html>

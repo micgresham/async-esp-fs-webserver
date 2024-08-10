@@ -1,5 +1,5 @@
 /*jshint esversion: 9 */
-const svgLogo = '<svg fill="brown" height=120px viewBox="0 0 24 24"><path d="M5 3C3.9 3 3 3.9 3 5S2.1 7 1 7V9C2.1 9 3 9.9 3 11S3.9 13 5 13H7V11H5V10C5 8.9 4.1 8 3 8C4.1 8 5 7.1 5 6V5H7V3M11 3C12.1 3 13 3.9 13 5S13.9 7 15 7V9C13.9 9 13 9.9 13 11S12.1 13 11 13H9V11H11V10C11 8.9 11.9 8 13 8C11.9 8 11 7.1 11 6V5H9V3H11M22 6V18C22 19.11 21.11 20 20 20H4C2.9 20 2 19.11 2 18V15H4V18H20V6H17.03V4H20C21.11 4 22 4.89 22 6Z" /></svg>'
+const svgLogo='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 49 30" width="49" height="30">'
 const svgLock =  '<svg height="16pt" viewBox="0 0 24 24"><path d="M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10C4,8.89 4.9,8 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M12,3A3,3 0 0,0 9,6V8H15V6A3,3 0 0,0 12,3Z" /></svg>';
 const svgUnlock = '<svg height="16pt" viewBox="0 0 24 24"><path d="M18 1C15.24 1 13 3.24 13 6V8H4C2.9 8 2 8.89 2 10V20C2 21.11 2.9 22 4 22H16C17.11 22 18 21.11 18 20V10C18 8.9 17.11 8 16 8H15V6C15 4.34 16.34 3 18 3C19.66 3 21 4.34 21 6V8H23V6C23 3.24 20.76 1 18 1M10 13C11.1 13 12 13.89 12 15C12 16.11 11.11 17 10 17C8.9 17 8 16.11 8 15C8 13.9 8.9 13 10 13Z" /></svg>';
 const svgScan = '<path d="M12 20L8.4 15.2C9.4 14.45 10.65 14 12 14S14.6 14.45 15.6 15.2L12 20M4.8 10.4L6.6 12.8C8.1 11.67 9.97 11 12 11S15.9 11.67 17.4 12.8L19.2 10.4C17.19 8.89 14.7 8 12 8S6.81 8.89 4.8 10.4M12 2C7.95 2 4.21 3.34 1.2 5.6L3 8C5.5 6.12 8.62 5 12 5S18.5 6.12 21 8L22.8 5.6C19.79 3.34 16.05 2 12 2M7 24H9V22H7V24M15 24H17V22H15V24M11 24H13V22H11V24Z" />';
@@ -22,12 +22,32 @@ var $ = function(el) {
 	return document.getElementById(el);
 };
 
+/*
 function hide(id) {
   $(id).classList.add('hide');
 }
 
 function show(id) {
   $(id).classList.remove('hide');
+}
+*/
+
+function hide(id) {
+  var element = $(id);
+  if (element) {
+    element.classList.add('hide');
+  } else {
+    console.error(`Element with id "${id}" not found.`);
+  }
+}
+
+function show(id) {
+  var element = $(id);
+  if (element) {
+    element.classList.remove('hide');
+  } else {
+    console.error(`Element with id "${id}" not found.`);
+  }
 }
 
 function newEl(element, attribute) {
@@ -48,10 +68,10 @@ function getParameters() {
   .then(res => res.json())
   .then(data => {
     $('esp-mode').innerHTML = data.mode;
-    $('esp-ip').innerHTML = `<a href="${esp}">${esp}</a>`;
+//    $('esp-ip').innerHTML = `<a href="${esp}">${esp}</a>`;
     $('firmware').innerHTML = data.firmware;
-    $('about').innerHTML = 'Created with ' + data.liburl;
-    $('about').setAttribute('href', data.liburl);
+    $('about').innerHTML = '';
+    //$('about').setAttribute('href', data.liburl);
     configFile = data.path;
     
     // Fetch 'config.json'
@@ -60,8 +80,8 @@ function getParameters() {
     .then(data => {
       for (const key in data){
         if(data.hasOwnProperty(key)){
-          if (key === 'name-logo') {
-            $('name-logo').innerHTML = data[key].replace( /(<([^>]+)>)/ig, '');
+          if (key === 'macID') {
+            $('macID').innerHTML = data[key].replace( /(<([^>]+)>)/ig, '');
             document.title = data[key].replace( /(<([^>]+)>)/ig, '');
             delete data[key];
             continue;
@@ -215,7 +235,7 @@ async function createOptionsBox(raw) {
     }
     else if (boxId != 'wifi-box') {
       var hidden = false;
-      if (key.startsWith('img-logo') || key.startsWith('name-logo')) {
+      if (key.startsWith('img-logo') || key.startsWith('macID')) {
         hidden = true;
       }
       else if(key.startsWith('raw-css')) {
@@ -404,16 +424,17 @@ function listWifi(obj) {
 }
 
 function doConnection(e, f) {
-  if ($('ssid').value === '' ||  $('password').value === ''){
-    openModal('Connect to WiFi','Please insert a SSID and a Password');
+  if ($('ssid').value === '' || $('password').value === '') {
+    openModal('Connect to WiFi', 'Please insert an SSID and a Password');
     return;
   }
   var formdata = new FormData();
   formdata.append("ssid", $('ssid').value);
   formdata.append("password", $('password').value);
   formdata.append("persistent", $('persistent').checked);
-  if (typeof f !== 'undefined')
+  if (typeof f !== 'undefined') {
     formdata.append("newSSID", true);
+  }
   if ($('no-dhcp').checked) {
     formdata.append("ip_address", $('ip').value);
     formdata.append("gateway", $('gateway').value);
@@ -424,30 +445,31 @@ function doConnection(e, f) {
     body: formdata,
     redirect: 'follow'
   };
-  
+
   show('loader');
   var s;
   fetch('/connect', requestOptions)
-  .then(function(res) {
-    s = res.status;
-    return res.text();
-  })
-  .then(function(data) {
-    if (s === 200) {
-      if (data.includes("already")) 
-        openModal('Connect to WiFi', data, () => {doConnection(e, true)});
-      else
-        openModal('Connect to WiFi', data, restartESP);
-    }
-    else 
-      openModal('Error!', data);
-    
-    hide('loader');
-  })
-  .catch((error) => {
-    openModal('Connect to WiFi', error);
-    hide('loader');
-  });
+    .then(function(res) {
+      s = res.status;
+      return res.text();
+    })
+    .then(function(data) {
+      if (s === 200) {
+        if (data.includes("already")) {
+          openModal('Connect to WiFi', data, () => { doConnection(e, true) });
+        } else {
+          openModal('Connect to WiFi', data, restartESP);
+        }
+      } else {
+        openModal('Error!', data);
+      }
+      hide('loader');
+    })
+    .catch((error) => {
+      // Show modal with a custom error message
+      openModal('Connection Error', 'An error occurred while trying to connect to the WiFi. Please check your connection and try again.  This condition may also occur if the WiFi connection has been switched to another netowrk.');
+      hide('loader');
+    });
 }
 
 
@@ -491,6 +513,7 @@ function showMenu() {
   $('top-nav').classList.add('resp');
 }
 
+/*
 function openModal(title, msg, fn, args) {
   $('message-title').innerHTML = title;
   $('message-body').innerHTML = msg;
@@ -503,6 +526,31 @@ function openModal(title, msg, fn, args) {
   else
     hide('ok-modal');
 }
+ */
+
+function openModal(title, msg, fn, args, showCloseButton = false) {
+  $('message-title').innerHTML = title;
+  $('message-body').innerHTML = msg;
+  $('modal-message').open = true;
+  $('main-box').style.filter = "blur(3px)";
+  
+  if (typeof fn !== 'undefined') {
+    closeCb = fn;
+    show('ok-modal');
+    hide('close-modal');
+  } else {
+    hide('ok-modal');
+    if (showCloseButton) {
+      show('close-modal');
+    }
+  }
+
+  // If no buttons are specified, show the close button by default
+  if (!fn && !showCloseButton) {
+    show('close-modal');
+  }
+}
+
 
 function closeModal(do_cb) {
   $('modal-message').open = false;
@@ -586,7 +634,7 @@ $('svg-connect').innerHTML = svgConnect;
 $('svg-save').innerHTML = svgSave;
 $('svg-save2').innerHTML = svgSave;
 $('svg-restart').innerHTML = svgRestart;
-$('img-logo').innerHTML = svgLogo;
+//$('img-logo').innerHTML = svgLogo;
 
 $('hum-btn').addEventListener('click', showMenu);
 $('scan-wifi').addEventListener('click', getWiFiList);
